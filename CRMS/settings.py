@@ -25,7 +25,7 @@ SECRET_KEY = '1e=7#yjy(a5wc4rwzpujx)+0(-0sj$95*okpgj(4kein3my2r4'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -131,3 +131,5 @@ STATICFILES_DIRS = [
 
 # 指定使用 crm.UserProfile 表代替默认的 auth_user 表
 AUTH_USER_MODEL = 'crm.UserProfile'
+
+LOGIN_URL = '/login/'
