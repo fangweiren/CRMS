@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django import views
+from crm.forms import RegisterForm
 
 
 # Create your views here.
@@ -28,6 +29,18 @@ class LoginView(views.View):
         else:
             return render(request, 'login.html', {"error_msg": "邮箱或密码错误"})
 
+
+class RegisterView(views.View):
+    def get(self, request):
+        form_obj = RegisterForm()
+        return render(request, 'register.html', {'form_obj': form_obj})
+
+    def post(self, request):
+        form_obj = RegisterForm(request.POST)
+        if form_obj.is_valid():
+            pass
+        else:
+            return render(request, 'register.html', {'form_obj': form_obj})
 
 @login_required
 def index(request):

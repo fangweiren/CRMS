@@ -20,5 +20,6 @@ from crm import views
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^login/$', views.LoginView.as_view()),
+    url(r'^register/$', views.RegisterView.as_view()),
     url(r'^index/$', views.index),
 ]
