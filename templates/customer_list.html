@@ -1,116 +1,46 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+{% extends 'base.html' %}
 
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <meta name="description" content="">
-    <meta name="author" content="nancy">
-    <link rel="icon" href="https://v3.bootcss.com/favicon.ico">
+{% block page_main %}
+    <h2 class="sub-header">客户列表</h2>
+    <div><a href="{% url 'add_customer' %}" class="btn btn-success">添加</a></div>
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>QQ</th>
+                <th>QQ昵称</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>电话</th>
+                <th>客户来源</th>
+                <th>咨询课程</th>
+                <th>班级类型</th>
+                <th>状态</th>
+                <th>咨询日期</th>
+                <th>已报班级</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for customer in customer_list %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ customer.qq }}</td>
+                    <td>{{ customer.qq_name }}</td>
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.get_sex_display }}</td>
+                    <td>{{ customer.phone|default:'暂无' }}</td>
+                    <td>{{ customer.get_source_display }}</td>
+                    <td>{{ customer.course }}</td>
+                    <td>{{ customer.get_class_type_display }}</td>
+                    <td>{{ customer.show_status }}</td>
+                    <td>{{ customer.date }}</td>
+                    <td>{{ customer.show_class_list|default:'暂无' }}</td>
+                </tr>
+            {% endfor %}
 
-    <title>客户展示页面</title>
-    {% load staticfiles %}
-    <!-- Bootstrap core CSS -->
-    <link href="{% static 'css/bootstrap.css' %}" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
-</head>
 
-<body>
-
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="/index/">Knight Plan</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
-                {#<li><a href="/login/">登录</a></li>#}
-                {#<li><a href="/register/">注册</a></li>#}
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-                       aria-expanded="false">{{ request.user.name }}<i class="caret"></i></a>
-                    {# aria-haspopup :true表示点击的时候会出现菜单或是浮动元素； false表示没有pop-up效果。#}
-                    {# aria-expanded:表示展开状态。默认为undefined, 表示当前展开状态未知。其它可选值：true表示元素是展开的；false表示元素不是展开的。#}
-                    <ul class="dropdown-menu">
-                        <li><a href="#">个人中心</a></li>
-                        <li><a href="#">未读消息 <span class="badge">4</span></a></li>
-                        <li class="divider" role="separator"></li>
-                        <li><a href="/logout/">注销</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
+            </tbody>
+        </table>
     </div>
-</nav>
-
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-            <ul class="nav nav-sidebar">
-                <li class="active"><a href="/crm/customer_list/">客户列表</a>
-                </li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Reports</a></li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Analytics</a></li>
-                <li><a href="https://v3.bootcss.com/examples/dashboard/#">Export</a></li>
-            </ul>
-        </div>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-            <h2 class="sub-header">客户列表</h2>
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>QQ</th>
-                        <th>QQ昵称</th>
-                        <th>姓名</th>
-                        <th>性别</th>
-                        <th>电话</th>
-                        <th>客户来源</th>
-                        <th>咨询课程</th>
-                        <th>班级类型</th>
-                        <th>状态</th>
-                        <th>咨询日期</th>
-                        <th>已报班级</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for customer in customer_list %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ customer.qq }}</td>
-                            <td>{{ customer.qq_name }}</td>
-                            <td>{{ customer.name }}</td>
-                            <td>{{ customer.get_sex_display }}</td>
-                            <td>{{ customer.phone|default:'暂无' }}</td>
-                            <td>{{ customer.get_source_display }}</td>
-                            <td>{{ customer.course }}</td>
-                            <td>{{ customer.get_class_type_display }}</td>
-                            <td>{{ customer.show_status }}</td>
-                            <td>{{ customer.date }}</td>
-                            <td>{{ customer.show_class_list|default:'暂无' }}</td>
-                        </tr>
-                    {% endfor %}
-
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="{% static 'js/jquery.js' %}"></script>
-<script src="{% static 'js/bootstrap.js' %}"></script>
-</body>
-</html>
+{% endblock %}

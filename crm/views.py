@@ -1,8 +1,9 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
+from django.urls import reverse
 from django import views
-from crm.forms import RegisterForm
+from crm.forms import RegisterForm, CustomerForm
 from crm.models import UserProfile, Customer
 
 
@@ -61,3 +62,16 @@ def customer_list(request):
 def logout(request):
     auth.logout(request)
     return redirect('/login/')
+
+
+def add_customer(request):
+    if request.method == 'POST':
+        form_obj = CustomerForm(request.POST)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect(reverse('customer_list'))
+        else:
+            return render(request, 'add_customer.html', {'form_obj': form_obj})
+
+    form_obj = CustomerForm()
+    return render(request, 'add_customer.html', {'form_obj': form_obj})
