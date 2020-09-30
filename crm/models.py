@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.core.validators import RegexValidator
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from multiselectfield import MultiSelectField
 
@@ -57,32 +58,56 @@ score_choices = ((100, 'A+'),
 class Customer(models.Model):
     """存储所有客户信息"""
     # 客户在咨询时，多是通过qq,所以这里就把qq号做为唯一标记客户的值，不能重复
-    qq = models.CharField('QQ', max_length=64, unique=True, help_text=u'QQ号必须唯一')
-    qq_name = models.CharField(u'QQ昵称', max_length=64, blank=True, null=True)
+    qq = models.CharField(verbose_name='QQ', max_length=64, unique=True, help_text=u'QQ号必须唯一')
+    qq_name = models.CharField(verbose_name=u'QQ昵称', max_length=64, blank=True, null=True)
     # 客户只要没报名，你没理由要求人家必须告诉你真实姓名及其它更多私人信息呀
-    name = models.CharField(u'姓名', max_length=32, blank=True, null=True, help_text=u'学员报名后，请改为真实姓名')
+    name = models.CharField(verbose_name=u'姓名', max_length=32, blank=True, null=True, help_text=u'学员报名后，请改为真实姓名')
     sex_type = (('male', u'男'), ('female', u'女'))
-    sex = models.CharField(u"性别", choices=sex_type, default='male', max_length=16, blank=True, null=True)
-    birthday = models.DateField(u'出生日期', default=None, blank=True, null=True, help_text="格式yyyy-mm-dd")
-    phone = models.BigIntegerField(u'手机号', blank=True, null=True)
+    sex = models.CharField(verbose_name=u"性别", choices=sex_type, default='male', max_length=16, blank=True, null=True)
+    birthday = models.DateField(verbose_name=u'出生日期', default=None, blank=True, null=True, help_text="格式yyyy-mm-dd")
+    phone = models.BigIntegerField(verbose_name=u'手机号', blank=True, null=True)
     # phone = models.CharField(u'手机号', blank=True, null=True)
-    source = models.CharField(u'客户来源', max_length=64, choices=source_type, default='qq')
+    source = models.CharField(verbose_name=u'客户来源', max_length=64, choices=source_type, default='qq')
     # 我们的很多新客户都是老学员转介绍来了，如果是转介绍的，就在这里纪录是谁介绍的他，前提这个介绍人必须是我们的老学员噢，要不然系统里找不到
-    introduce_from = models.ForeignKey('self', verbose_name=u"转介绍自学员", blank=True, null=True)
-    course = MultiSelectField(u'咨询课程', choices=course_choices)
-    class_type = models.CharField(u"班级类型", max_length=64, choices=class_type_choices, default='fulltime')
-    customer_note = models.TextField(u"客户备注", blank=True, null=True)
-    status = models.CharField(u"状态", choices=enroll_status_choices, max_length=64, default=u"unregistered",
+    introduce_from = models.ForeignKey(to='self', verbose_name=u"转介绍自学员", blank=True, null=True)
+    course = MultiSelectField(verbose_name=u'咨询课程', choices=course_choices)
+    class_type = models.CharField(verbose_name=u"班级类型", max_length=64, choices=class_type_choices, default='fulltime')
+    customer_note = models.TextField(verbose_name=u"客户备注", blank=True, null=True)
+    status = models.CharField(verbose_name=u"状态", choices=enroll_status_choices, max_length=64, default=u"unregistered",
                               help_text=u"选择客户此时的状态")
     network_consult_note = models.TextField(blank=True, null=True, verbose_name=u'网络咨询师咨询内容')
-    date = models.DateField(u"咨询日期", auto_now_add=True)
-    last_consult_date = models.DateField(u'最后跟进日期', auto_now_add=True)
-    next_date = models.DateField(u'预计再次跟进时间', blank=True, null=True)
-    network_consultant = models.ForeignKey("UserProfile", blank=True, null=True, verbose_name=u"咨询师",
+    date = models.DateField(verbose_name=u"咨询日期", auto_now_add=True)
+    last_consult_date = models.DateField(verbose_name=u'最后跟进日期', auto_now_add=True)
+    next_date = models.DateField(verbose_name=u'预计再次跟进时间', blank=True, null=True)
+    network_consultant = models.ForeignKey(to="UserProfile", blank=True, null=True, verbose_name=u"咨询师",
                                            related_name='network_consultant')
-    consultant = models.ForeignKey('UserProfile', verbose_name='销售', related_name='customers', blank=True, null=True,
+    consultant = models.ForeignKey(to='UserProfile', verbose_name='销售', related_name='customers', blank=True, null=True,
                                    on_delete=models.CASCADE)
-    class_list = models.ManyToManyField('ClassList', verbose_name='已报班级', blank=True)
+    class_list = models.ManyToManyField(to='ClassList', verbose_name='已报班级', null=True,
+                                        blank=True)  # null 表示数据库中可以为空，blank表示admin后台可以为空
+
+    class Meta:
+        verbose_name = '客户'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return "{}-{}".format(self.qq, self.name)
+
+    def show_class_list(self):
+        return '|'.join([str(i) for i in self.class_list.all()])
+
+    # 展示状态
+    def show_status(self):
+        _status_color = {
+            'signed': 'blue',
+            'unregistered': 'red',
+            'studying': 'green',
+            'paid_in_full': 'oranged',
+        }
+        return mark_safe('<span style="background-color: {}; color: white">{}</span>'.format(
+            _status_color[self.status],
+            self.get_status_display()
+        ))
 
 
 class Campuses(models.Model):
@@ -94,6 +119,10 @@ class Campuses(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = '校区'
+        verbose_name_plural = verbose_name
 
 
 class ContractTemplate(models.Model):
@@ -130,9 +159,11 @@ class ClassList(models.Model):
 
     class Meta:
         unique_together = ("course", "semester", 'campuses')
+        verbose_name = '已报课程'
+        verbose_name_plural = verbose_name
 
     def __str__(self):
-        return "{}{}({})".format(self.get_course_display(), self.semester, self.campuses)
+        return "{}-{}期({})".format(self.get_course_display(), self.semester, self.campuses)
 
     @staticmethod
     def list_display():
@@ -323,7 +354,7 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def __str__(self):
-        return self.email
+        return self.name
 
     # 给ORM添加管理类
     objects = UserManager()

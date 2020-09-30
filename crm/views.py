@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django import views
 from crm.forms import RegisterForm
-from crm.models import UserProfile
+from crm.models import UserProfile, Customer
 
 
 # Create your views here.
@@ -51,3 +51,13 @@ class RegisterView(views.View):
 @login_required
 def index(request):
     return HttpResponse('index')
+
+@login_required
+def customer_list(request):
+    data = Customer.objects.all()
+    return render(request, 'customer_list.html', {'customer_list': data})
+
+
+def logout(request):
+    auth.logout(request)
+    return redirect('/login/')
