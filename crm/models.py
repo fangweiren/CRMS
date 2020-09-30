@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from multiselectfield import MultiSelectField
 
@@ -284,6 +284,8 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
         verbose_name='email address',
         max_length=255,
         unique=True,
+        validators=[RegexValidator(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", '请输入正确的邮箱'), ]
+
     )
 
     name = models.CharField('名字', max_length=64)

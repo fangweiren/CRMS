@@ -1,7 +1,6 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 from crm.models import UserProfile
 
 
@@ -44,9 +43,9 @@ class RegisterForm(forms.ModelForm):
                 'required': '确认密码不能为空'
             },
             'name': {
-                'max_length': '昵称最多8位',
-                'min_length': '昵称最少3位',
-                'required': '昵称不能为空'
+                'max_length': '名字最多8位',
+                'min_length': '名字最少3位',
+                'required': '名字不能为空'
             },
             'mobile': {
                 'required': '手机号不能为空',
@@ -62,7 +61,7 @@ class RegisterForm(forms.ModelForm):
         if '系统' in name:
             # 如何给 name 所对应的框展示错误信息呢？
             # 注意下面是钩子函数的固定用法，添加对应字段的错误提示信息
-            self.add_error('name', '昵称中不能包含系统等字')
+            self.add_error('name', '名字中不能包含系统等字')
 
         # 将 name 数据返回,这个地方是必须要返回字段数据的，缺失不可
         return name

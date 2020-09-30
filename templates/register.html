@@ -17,6 +17,7 @@
                     <div>
                         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                         {{ field }}
+                    <span class="help-block">{{ field.errors.0 }}</span>
                     </div>
                 {% endfor %}
 {#                <button type="submit" class="btn btn-success">提交</button>#}

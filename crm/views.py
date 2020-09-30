@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import auth
 from django import views
 from crm.forms import RegisterForm
+from crm.models import UserProfile
 
 
 # Create your views here.
@@ -38,7 +39,12 @@ class RegisterView(views.View):
     def post(self, request):
         form_obj = RegisterForm(request.POST)
         if form_obj.is_valid():
-            pass
+            # 校验通过
+            # 1.先把 re_password 字段去掉
+            form_obj.cleaned_data.pop('re_password')
+            # 2.去数据库创建用户
+            UserProfile.objects.create_user(**form_obj.cleaned_data)
+            return redirect('/login/')
         else:
             return render(request, 'register.html', {'form_obj': form_obj})
 
