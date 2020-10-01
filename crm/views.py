@@ -4,6 +4,7 @@ from django.contrib import auth
 from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django import views
+from django.db.models.query import Q
 from crm.forms import RegisterForm, CustomerForm
 from crm.models import UserProfile, Customer
 
@@ -61,10 +62,21 @@ class CustomerListView(views.View):
     def get(self, request):
         if request.path_info == reverse('my_customer'):
             # 获取私户信息（也就是当前登录用户的客户）
-            data = Customer.objects.filter(consultant=request.user)
+            query_set = Customer.objects.filter(consultant=request.user)
         else:
             # 获取所有公户信息
-            data = Customer.objects.filter(consultant__isnull=True)
+            query_set = Customer.objects.filter(consultant__isnull=True)
+
+        # -------------------------------------------模糊检索---------------------------------------------
+        # 根据模糊检索的条件对 query_set 再做过滤
+        query = request.GET.get('query', '')
+        # 找到 name、qq、qq_name 字段包含 query 的那些数据
+        data = query_set.filter(Q(name__icontains=query) | Q(qq__icontains=query) | Q(qq_name__icontains=query))
+        # ----------------------另一个方法：自己封装-------------------------
+        # q = self._get_query_q(['name', 'qq', 'qq_name'])
+        # data = query_set.filter(q)
+        # ----------------------另一个方法：自己封装 END--------------------
+
         return render(request, 'customer_list.html', {'customer_list': data})
 
     @method_decorator(login_required)
@@ -95,6 +107,18 @@ class CustomerListView(views.View):
     def to_public(self, request, cid):
         Customer.objects.filter(id__in=cid).update(consultant=request.user)
         """
+
+    def _get_query_q(self, field_list, op='OR'):
+        """定义一个模糊检索的私有方法"""
+        # 从 URL 中取到 query 参数
+        query = self.request.GET.get('query', '')
+        q = Q()
+        # 指定 q 查询内部的操作是 OR 还是 AND
+        q.connector = op
+        # 遍历要检索的字段，挨个添加子 Q 对象
+        for field in field_list:
+            q.children.append(Q(('{}__icontains'.format(field), query)))
+        return q
 
 
 def logout(request):
