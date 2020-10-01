@@ -72,10 +72,29 @@ class CustomerListView(views.View):
         """批量操作：变为公户/变为私户"""
         action = request.POST.get('action')
         cid = request.POST.getlist('cid')
+
         if action == 'to_private':
+            # 找到所有要操作的客户数据，把他们变成我的客户
             Customer.objects.filter(id__in=cid).update(consultant=request.user)
+        elif action == 'to_public':
+            # 把我的客户数据变为公户数据
+            Customer.objects.filter(id__in=cid).update(consultant=None)
 
         return redirect(reverse('customer_list'))
+
+        """
+        # ---------------------------------利用 action 反射操作--------------------------------------------
+        if hasattr(self, action):
+            getattr(self, action)(request, cid)
+
+        return redirect(reverse('customer_list'))
+
+    def to_private(self, request, cid):
+        Customer.objects.filter(id__in=cid).update(consultant=request.user)
+
+    def to_public(self, request, cid):
+        Customer.objects.filter(id__in=cid).update(consultant=request.user)
+        """
 
 
 def logout(request):
