@@ -1,6 +1,7 @@
 from django.shortcuts import render, HttpResponse, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import auth
+from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django import views
 from crm.forms import RegisterForm, CustomerForm
@@ -55,15 +56,26 @@ def index(request):
     return HttpResponse('index')
 
 
-@login_required
-def customer_list(request):
-    if request.path_info == reverse('my_customer'):
-        # 获取私户信息（也就是当前登录用户的客户）
-        data = Customer.objects.filter(consultant=request.user)
-    else:
-        # 获取所有公户信息
-        data = Customer.objects.filter(consultant__isnull=True)
-    return render(request, 'customer_list.html', {'customer_list': data})
+class CustomerListView(views.View):
+    @method_decorator(login_required)
+    def get(self, request):
+        if request.path_info == reverse('my_customer'):
+            # 获取私户信息（也就是当前登录用户的客户）
+            data = Customer.objects.filter(consultant=request.user)
+        else:
+            # 获取所有公户信息
+            data = Customer.objects.filter(consultant__isnull=True)
+        return render(request, 'customer_list.html', {'customer_list': data})
+
+    @method_decorator(login_required)
+    def post(self, request):
+        """批量操作：变为公户/变为私户"""
+        action = request.POST.get('action')
+        cid = request.POST.getlist('cid')
+        if action == 'to_private':
+            Customer.objects.filter(id__in=cid).update(consultant=request.user)
+
+        return redirect(reverse('customer_list'))
 
 
 def logout(request):
