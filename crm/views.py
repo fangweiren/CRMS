@@ -57,7 +57,12 @@ def index(request):
 
 @login_required
 def customer_list(request):
-    data = Customer.objects.all()
+    if request.path_info == reverse('my_customer'):
+        # 获取私户信息（也就是当前登录用户的客户）
+        data = Customer.objects.filter(consultant=request.user)
+    else:
+        # 获取所有公户信息
+        data = Customer.objects.filter(consultant__isnull=True)
     return render(request, 'customer_list.html', {'customer_list': data})
 
 
@@ -92,10 +97,11 @@ def edit_customer(request, edit_id):
 
     return render(request, 'add_customer.html', {'form_obj': form_obj})
 
+
 # 新增和编辑二合一的视图函数
 def customer(request, edit_id=None):
     # 如果 edit_id=None 表示是新增操作，如果 edit_id 有值表示是编辑操作
-    customer_obj = Customer.objects.filter(pk=edit_id).first() # 有值返回具体对象，否则返回 None
+    customer_obj = Customer.objects.filter(pk=edit_id).first()  # 有值返回具体对象，否则返回 None
     # 使用 instance 对象的数据填充生成 input 标签
     form_obj = CustomerForm(instance=customer_obj)
     if request.method == 'POST':
