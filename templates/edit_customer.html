@@ -4,7 +4,7 @@
 
     <form class="form-horizontal" action="" method="post" novalidate>
         {% csrf_token %}
-        <h2 class="text-center">添加客户信息</h2>
+        <h2 class="text-center">编辑客户信息</h2>
         {% for field in form_obj %}
             <div class="form-group {% if field.errors.0 %}has-error{% endif %}">
                 <label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>

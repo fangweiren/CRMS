@@ -49,9 +49,11 @@ class RegisterView(views.View):
         else:
             return render(request, 'register.html', {'form_obj': form_obj})
 
+
 @login_required
 def index(request):
     return HttpResponse('index')
+
 
 @login_required
 def customer_list(request):
@@ -75,3 +77,32 @@ def add_customer(request):
 
     form_obj = CustomerForm()
     return render(request, 'add_customer.html', {'form_obj': form_obj})
+
+
+def edit_customer(request, edit_id):
+    customer_obj = Customer.objects.filter(pk=edit_id).first()
+    # 使用 instance 对象的数据填充生成 input 标签
+    form_obj = CustomerForm(instance=customer_obj)
+    if request.method == 'POST':
+        # 使用 POST 提交的数据去更新指定的 instance 实例
+        form_obj = CustomerForm(request.POST, instance=customer_obj)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect(reverse('customer_list'))
+
+    return render(request, 'add_customer.html', {'form_obj': form_obj})
+
+# 新增和编辑二合一的视图函数
+def customer(request, edit_id=None):
+    # 如果 edit_id=None 表示是新增操作，如果 edit_id 有值表示是编辑操作
+    customer_obj = Customer.objects.filter(pk=edit_id).first() # 有值返回具体对象，否则返回 None
+    # 使用 instance 对象的数据填充生成 input 标签
+    form_obj = CustomerForm(instance=customer_obj)
+    if request.method == 'POST':
+        # 使用 POST 提交的数据去更新指定的 instance 实例
+        form_obj = CustomerForm(request.POST, instance=customer_obj)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect(reverse('customer_list'))
+
+    return render(request, 'customer.html', {'form_obj': form_obj, 'edit_id': edit_id})
