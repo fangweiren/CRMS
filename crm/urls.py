@@ -12,5 +12,5 @@ urlpatterns = [
 
     #--------------新增和编辑二合一--------------------
     url(r'add/', views.customer, name='add_customer'),
-    url(r'edit/(\d+)', views.customer, name='edit_customer'),
+    url(r'edit/(\d+)/', views.customer, name='edit_customer'),
 ]

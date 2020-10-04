@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django import views
 from django.db.models.query import Q
+from django.http import QueryDict
 from copy import deepcopy
 from crm.forms import RegisterForm, CustomerForm
 from crm.models import UserProfile, Customer
@@ -63,8 +64,9 @@ class CustomerListView(views.View):
     @method_decorator(login_required)
     def get(self, request):
         url_prefix = request.path_info
-        qd = deepcopy(request.GET)
-        qd._mutable = True
+        # qd = deepcopy(request.GET)
+        # qd._mutable = True
+        qd = request.GET.copy()
         current_page = request.GET.get('page', 1)
 
         if request.path_info == reverse('my_customer'):
@@ -87,7 +89,15 @@ class CustomerListView(views.View):
         page_obj = Pagination(url_prefix, current_page, total_count, qd)
         data = query_set[page_obj.start: page_obj.end]
 
-        return render(request, 'customer_list.html', {'customer_list': data, "page_obj": page_obj})
+        # 获取当前 URL 作为操作后需要跳转回的 URL
+        current_url = request.get_full_path()
+        query_params = QueryDict(mutable=True)
+        query_params['next'] = current_url
+        next_url = query_params.urlencode()
+        print(next_url)
+
+        return render(request, 'customer_list.html',
+                      {'customer_list': data, 'next_url': next_url, 'page_obj': page_obj})
 
     @method_decorator(login_required)
     def post(self, request):
@@ -177,6 +187,7 @@ def customer(request, edit_id=None):
         form_obj = CustomerForm(request.POST, instance=customer_obj)
         if form_obj.is_valid():
             form_obj.save()
-            return redirect(reverse('customer_list'))
+            next_url = request.GET.get('next', reverse('customer_list'))
+            return redirect(next_url)
 
     return render(request, 'customer.html', {'form_obj': form_obj, 'edit_id': edit_id})
