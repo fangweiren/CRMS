@@ -1,16 +1,19 @@
+from django.http import QueryDict
 from CRMS.settings import PER_PAGE, SHOW_PAGE
 
 
 class Pagination(object):
     """自定义分页类"""
 
-    def __init__(self, current_page, total_count, url_prefix):
+    def __init__(self, url_prefix, current_page, total_count, query_dict=QueryDict(mutable=True)):
         """
+        :param url_prefix: url 前缀
         :param current_page: 当前页码数
         :param total_count: 数据条数
-        :param url_prefix: url 前缀
+        :param query_dict: 空的 QueryDict() 对象，并且是可修改的
         """
         self.url_prefix = url_prefix
+        self.query_dict = query_dict
         # 每一页显示 10 条数据
         self.per_page = PER_PAGE
         # 计算需要多少页
@@ -36,7 +39,7 @@ class Pagination(object):
         # 最多显示页码的一半
         self.half_show_page = self.show_page // 2
 
-        self.show_page_list()
+        self.range = self.show_page_list()
 
     @property
     def start(self):
@@ -64,5 +67,4 @@ class Pagination(object):
         else:
             show_page_start = self.current_page - self.half_show_page
             show_page_end = self.current_page + self.half_show_page
-
-        self.range = range(show_page_start, show_page_end + 1)
+        return range(show_page_start, show_page_end + 1)

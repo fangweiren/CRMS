@@ -5,6 +5,7 @@ from django.utils.decorators import method_decorator
 from django.urls import reverse
 from django import views
 from django.db.models.query import Q
+from copy import deepcopy
 from crm.forms import RegisterForm, CustomerForm
 from crm.models import UserProfile, Customer
 from utils.myPagination import Pagination
@@ -59,9 +60,13 @@ def index(request):
 
 
 class CustomerListView(views.View):
-    '''
     @method_decorator(login_required)
     def get(self, request):
+        url_prefix = request.path_info
+        qd = deepcopy(request.GET)
+        qd._mutable = True
+        current_page = request.GET.get('page', 1)
+
         if request.path_info == reverse('my_customer'):
             # 获取私户信息（也就是当前登录用户的客户）
             query_set = Customer.objects.filter(consultant=request.user)
@@ -73,24 +78,13 @@ class CustomerListView(views.View):
         # 根据模糊检索的条件对 query_set 再做过滤
         query = request.GET.get('query', '')
         # 找到 name、qq、qq_name 字段包含 query 的那些数据
-        data = query_set.filter(Q(name__icontains=query) | Q(qq__icontains=query) | Q(qq_name__icontains=query))
+        query_set = query_set.filter(Q(name__icontains=query) | Q(qq__icontains=query) | Q(qq_name__icontains=query))
         # ----------------------另一个方法：自己封装-------------------------
         # q = self._get_query_q(['name', 'qq', 'qq_name'])
         # data = query_set.filter(q)
         # ----------------------另一个方法：自己封装 END--------------------
-
-        return render(request, 'customer_list.html', {'customer_list': data})
-    '''
-
-    @method_decorator(login_required)
-    def get(self, request):
-        url_prefix = request.path_info
-        current_page = request.GET.get('page', 1)
-        query_set = Customer.objects.all()
-        total_count = query_set.count()  # SQL语句效率高
-        # 生成一个分页实例
-        page_obj = Pagination(current_page, total_count, url_prefix)
-        # 取到当前页面的数据
+        total_count = query_set.count()
+        page_obj = Pagination(url_prefix, current_page, total_count, qd)
         data = query_set[page_obj.start: page_obj.end]
 
         return render(request, 'customer_list.html', {'customer_list': data, "page_obj": page_obj})
@@ -110,31 +104,32 @@ class CustomerListView(views.View):
 
         return redirect(reverse('customer_list'))
 
-        """
         # ---------------------------------利用 action 反射操作--------------------------------------------
-        if hasattr(self, action):
-            getattr(self, action)(request, cid)
 
-        return redirect(reverse('customer_list'))
+    #     if hasattr(self, action):
+    #         getattr(self, action)(request, cid)
+    #
+    #     return redirect(reverse('customer_list'))
+    #
+    # def to_private(self, request, cid):
+    #     Customer.objects.filter(id__in=cid).update(consultant=request.user)
+    #
+    # def to_public(self, request, cid):
+    #     Customer.objects.filter(id__in=cid).update(consultant=request.user)
 
-    def to_private(self, request, cid):
-        Customer.objects.filter(id__in=cid).update(consultant=request.user)
+    # ---------------------------------利用 action 反射操作 END--------------------------------------------
 
-    def to_public(self, request, cid):
-        Customer.objects.filter(id__in=cid).update(consultant=request.user)
-        """
-
-    def _get_query_q(self, field_list, op='OR'):
-        """定义一个模糊检索的私有方法"""
-        # 从 URL 中取到 query 参数
-        query = self.request.GET.get('query', '')
-        q = Q()
-        # 指定 q 查询内部的操作是 OR 还是 AND
-        q.connector = op
-        # 遍历要检索的字段，挨个添加子 Q 对象
-        for field in field_list:
-            q.children.append(Q(('{}__icontains'.format(field), query)))
-        return q
+    # def _get_query_q(self, field_list, op='OR'):
+    #     """定义一个模糊检索的私有方法"""
+    #     # 从 URL 中取到 query 参数
+    #     query = self.request.GET.get('query', '')
+    #     q = Q()
+    #     # 指定 q 查询内部的操作是 OR 还是 AND
+    #     q.connector = op
+    #     # 遍历要检索的字段，挨个添加子 Q 对象
+    #     for field in field_list:
+    #         q.children.append(Q(('{}__icontains'.format(field), query)))
+    #     return q
 
 
 def logout(request):

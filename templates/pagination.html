@@ -1,24 +1,25 @@
+{% load crm_filters %}
 <nav aria-label="Page navigation" style="text-align: center">
     <ul class="pagination pagination-lg">
-        <li><a href="{{ url_prefix }}?&page=1"><span>首页</span></a></li>
+        <li><a href="{{ page_obj.url_prefix }}?{{ page_obj.query_dict|replace_page:1 }}"><span>首页</span></a></li>
         {% if page_obj.current_page <= 1 %}
             <li class="disabled"><span><span aria-hidden="true">&laquo;</span></span></li>
         {% else %}
-            <li><a href="{{ url_prefix }}?&page={{ page_obj.previous }}">&laquo;</a></li>
+            <li><a href="{{ page_obj.url_prefix }}?{{ page_obj.query_dict|replace_page:page_obj.previous }}">&laquo;</a></li>
         {% endif %}
 
         {% for idx in page_obj.range %}
             {% if idx == page_obj.current_page %}
                 <li class="active"><a href="javascript:void(0);">{{ idx }}</a></li>
             {% else %}
-                <li><a href="{{ url_prefix }}?&page={{ idx }}">{{ idx }}</a></li>
+                <li><a href="{{ page_obj.url_prefix }}?{{ page_obj.query_dict|replace_page:idx }}">{{ idx }}</a></li>
             {% endif %}
         {% endfor %}
         {% if page_obj.current_page >= page_obj.total_page %}
             <li class="disabled"><span><span aria-hidden="true">&raquo;</span></span></li>
         {% else %}
-            <li><a href="{{ url_prefix }}?&page={{ page_obj.next }}">&raquo;</a></li>
+            <li><a href="{{ page_obj.url_prefix }}?{{ page_obj.query_dict|replace_page:page_obj.next }}">&raquo;</a></li>
         {% endif %}
-        <li><a href="{{ url_prefix }}?&page={{ page_obj.total_page }}"><span>尾页</span></a></li>
+        <li><a href="{{ page_obj.url_prefix }}?{{ page_obj.query_dict|replace_page:page_obj.total_page }}"><span>尾页</span></a></li>
     </ul>
 </nav>
