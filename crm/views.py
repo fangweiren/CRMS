@@ -7,6 +7,7 @@ from django import views
 from django.db.models.query import Q
 from crm.forms import RegisterForm, CustomerForm
 from crm.models import UserProfile, Customer
+from utils.myPagination import Pagination
 
 
 # Create your views here.
@@ -58,6 +59,7 @@ def index(request):
 
 
 class CustomerListView(views.View):
+    '''
     @method_decorator(login_required)
     def get(self, request):
         if request.path_info == reverse('my_customer'):
@@ -78,6 +80,20 @@ class CustomerListView(views.View):
         # ----------------------另一个方法：自己封装 END--------------------
 
         return render(request, 'customer_list.html', {'customer_list': data})
+    '''
+
+    @method_decorator(login_required)
+    def get(self, request):
+        url_prefix = request.path_info
+        current_page = request.GET.get('page', 1)
+        query_set = Customer.objects.all()
+        total_count = query_set.count()  # SQL语句效率高
+        # 生成一个分页实例
+        page_obj = Pagination(current_page, total_count, url_prefix)
+        # 取到当前页面的数据
+        data = query_set[page_obj.start: page_obj.end]
+
+        return render(request, 'customer_list.html', {'customer_list': data, "page_obj": page_obj})
 
     @method_decorator(login_required)
     def post(self, request):
@@ -126,6 +142,7 @@ def logout(request):
     return redirect('/login/')
 
 
+"""
 def add_customer(request):
     if request.method == 'POST':
         form_obj = CustomerForm(request.POST)
@@ -151,6 +168,7 @@ def edit_customer(request, edit_id):
             return redirect(reverse('customer_list'))
 
     return render(request, 'add_customer.html', {'form_obj': form_obj})
+"""
 
 
 # 新增和编辑二合一的视图函数

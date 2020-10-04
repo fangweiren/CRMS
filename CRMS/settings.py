@@ -133,3 +133,9 @@ STATICFILES_DIRS = [
 AUTH_USER_MODEL = 'crm.UserProfile'
 
 LOGIN_URL = '/login/'
+
+# 分页配置
+# 每一页显示多少数据，默认值是 10
+PER_PAGE = 1
+# 页面显示的页码数，默认是 9
+SHOW_PAGE = 9
