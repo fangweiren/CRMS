@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from crm.models import UserProfile, Customer
+from crm.models import UserProfile, Customer, ConsultRecord
 
 
 # 自定义验证规则
@@ -101,6 +101,23 @@ class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = '__all__'
+
+        widgets = {
+            'course': forms.widgets.SelectMultiple,
+        }
+
+
+class ConsultRecordForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # self.fields['customer'].choices = Customer.objects.filter(consultant=self.instance.consultant).values_list('id', 'qq')
+        self.fields['customer'] = forms.models.ModelChoiceField(queryset=Customer.objects.filter(consultant=self.instance.consultant).all())
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+    class Meta:
+        model = ConsultRecord
+        exclude = ['delete_status', ]
 
         widgets = {
             'course': forms.widgets.SelectMultiple,

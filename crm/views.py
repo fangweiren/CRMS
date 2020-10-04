@@ -7,8 +7,8 @@ from django import views
 from django.db.models.query import Q
 from django.http import QueryDict
 from copy import deepcopy
-from crm.forms import RegisterForm, CustomerForm
-from crm.models import UserProfile, Customer
+from crm.forms import RegisterForm, CustomerForm, ConsultRecordForm
+from crm.models import UserProfile, Customer, ConsultRecord
 from utils.myPagination import Pagination
 
 
@@ -191,3 +191,27 @@ def customer(request, edit_id=None):
             return redirect(next_url)
 
     return render(request, 'customer.html', {'form_obj': form_obj, 'edit_id': edit_id})
+
+
+def consult_record_list(request):
+    query_set = ConsultRecord.objects.filter(consultant=request.user, delete_status=False)
+    return render(request, 'consult_record_list.html', {'consult_record_list': query_set})
+
+
+def consult_record(request, edit_id=None):
+    # 如果 edit_id=None 表示是新增操作，如果 edit_id 有值表示是编辑操作
+    record_obj = ConsultRecord.objects.filter(pk=edit_id).first()  # 有值返回具体对象，否则返回 None
+    if not record_obj:
+        # 如果是添加操作，创建一个销售是我的 ConsultRecord 对象
+        record_obj = ConsultRecord(consultant=request.user)
+
+    # 使用 instance 对象的数据填充生成 input 标签
+    form_obj = ConsultRecordForm(instance=record_obj, initial={'consultant': request.user})
+    if request.method == 'POST':
+        # 使用 POST 提交的数据去更新指定的 instance 实例
+        form_obj = ConsultRecordForm(request.POST, instance=record_obj)
+        if form_obj.is_valid():
+            form_obj.save()
+            return redirect(reverse('consult_record_list'))
+
+    return render(request, 'consult_record.html', {'form_obj': form_obj, 'edit_id': edit_id})
