@@ -7,8 +7,8 @@ from django import views
 from django.db.models.query import Q
 from django.http import QueryDict
 from copy import deepcopy
-from crm.forms import RegisterForm, CustomerForm, ConsultRecordForm
-from crm.models import UserProfile, Customer, ConsultRecord
+from crm.forms import RegisterForm, CustomerForm, ConsultRecordForm, EnrollmentForm
+from crm.models import UserProfile, Customer, ConsultRecord, Enrollment
 from utils.myPagination import Pagination
 
 
@@ -222,3 +222,34 @@ def consult_record(request, edit_id=None):
             return redirect(reverse('consult_record_list', kwargs={'cid': 0}))
 
     return render(request, 'consult_record.html', {'form_obj': form_obj, 'edit_id': edit_id})
+
+
+def enrollment_list(request, customer_id=0):
+    """查看报名表"""
+    if int(customer_id) == 0:
+        # 查询当前销售所有客户的报名表
+        query_set = Enrollment.objects.filter(customer__consultant=request.user)
+    else:
+        query_set = Enrollment.objects.filter(customer_id=customer_id)
+    return render(request, 'enrollment_list.html', {'enrollment_list': query_set})
+
+
+def enrollment(request, customer_id=None, enrollment_id=None):
+    """添加和编辑报名表"""
+    # 先根据报名表id去查询
+    enrollment_obj = Enrollment.objects.filter(id=enrollment_id).first()
+    # 如果查询不到报名表说明是添加报名表操作
+    # 又因为添加报名表必须指定客户
+    if not enrollment_obj:
+        enrollment_obj = Enrollment(customer=Customer.objects.filter(id=customer_id).first())
+
+    form_obj = EnrollmentForm(instance=enrollment_obj)
+    if request.method == 'POST':
+        form_obj = EnrollmentForm(request.POST, instance=enrollment_obj)
+        if form_obj.is_valid():
+            new_obj = form_obj.save()
+            # 报名成功，更改客户当前状态
+            new_obj.customer.status = 'signed'
+            new_obj.customer.save()  # 改的是哪张表的字段就保存哪个对象
+            return redirect(reverse('enrollment_list', kwargs={'customer_id': 0}))
+    return render(request, 'enrollment.html', {'form_obj': form_obj})

@@ -64,7 +64,7 @@
                 <li><a href="{% url 'customer_list' %}">客户列表</a></li>
                 <li><a href="{% url 'my_customer' %}">我的客户</a></li>
                 <li><a href="{% url 'consult_record_list' cid=0 %}">跟进记录</a></li>
-                <li><a href="#">Export</a></li>
+                <li><a href="{% url 'enrollment_list' customer_id=0 %}">查看报名表</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

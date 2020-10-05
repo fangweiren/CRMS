@@ -7,7 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 from multiselectfield import MultiSelectField
 
 course_choices = (('Linux', 'Linux中高级'),
-                  ('PythonFullStack', 'Python高级全栈开发'),)
+                  ('PythonFullStack', 'Python高级全栈开发'),
+                  ('Go语言开发', 'Go高级开发'),)
 
 class_type_choices = (('online', u'网络班'),
                       ('offline_weekend', u'面授班(周末)'),
@@ -191,7 +192,7 @@ class Enrollment(models.Model):
     """
     why_us = models.TextField("为什么报名", max_length=1024, default=None, blank=True, null=True)
     your_expectation = models.TextField("学完想达到的具体期望", max_length=1024, blank=True, null=True)
-    # contract_agreed = models.BooleanField("我已认真阅读完培训协议并同意全部协议内容", default=False)
+    contract_agreed = models.BooleanField("我已认真阅读完培训协议并同意全部协议内容", default=False)
     contract_approved = models.BooleanField("审批通过", help_text="在审阅完学员的资料无误后勾选此项,合同即生效", default=False)
     enrolled_date = models.DateTimeField(auto_now_add=True, verbose_name="报名日期")
     memo = models.TextField('备注', blank=True, null=True)

@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_main %}
+
+    <form class="form-horizontal" action="" method="post" novalidate>
+        {% csrf_token %}
+        <h2 class="text-center">{% if edit_id %}编辑{% else %}添加{% endif %}报名表</h2>
+        {% for field in form_obj %}
+            <div class="form-group {% if field.errors.0 %}has-error{% endif %}">
+                <label for="{{ field.id_for_label }}" class="col-sm-2 control-label">{{ field.label }}</label>
+                <div class="col-sm-10">
+                    {{ field }}
+                    <span class="help-block">{{ field.errors.0 }}</span>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-default">提交</button>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block page_js %}
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script>
+        $(document).ready(function () {
+            $("#id_school").on('change', function () {
+                var sId = $(this).val();
+                // 获取到选中的校区id
+                // 发AJAX请求到后端取出当前校区的所有课程
+                $.ajax({
+                    url: '/crm/ajax_class/',
+                    type: 'get',
+                    data: {'sid': sId},
+                    success: function (res) {
+                        var $classSelect = $("#id_enrolment_class");
+                        $classSelect.text('');
+                        $classSelect.append('<option value="">---------</option>');
+                        $.each(res.data, function (k, v) {
+                            var opEle = document.createElement('option')
+                            $(opEle).text(v.name).attr('value', v.id)
+                            $classSelect.append(opEle);
+                        })
+                    }
+
+                })
+            })
+        })
+    </script>
+{% endblock %}
+

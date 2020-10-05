@@ -48,6 +48,7 @@
                     <th>咨询日期</th>
                     <th>已报班级</th>
                     <th>沟通记录</th>
+                    <th>报名</th>
                     <th>操作</th>
                 </tr>
                 </thead>
@@ -68,6 +69,10 @@
                         <td>{{ customer.date }}</td>
                         <td>{{ customer.show_class_list|default:'暂无' }}</td>
                         <td><a href="{% url 'consult_record_list' cid=customer.id %}">查看</a></td>
+                        <td>
+                            <a href="{% url 'add_enrollment' customer.id %}">添加</a> |
+                            <a href="{% url 'enrollment_list' customer.id %}">查看</a>
+                        </td>
                         <td><a href="{% url 'edit_customer' customer.id %}?{{ next_url }}"><i class="fa fa-edit"></i></a></td>
                     </tr>
                 {% endfor %}

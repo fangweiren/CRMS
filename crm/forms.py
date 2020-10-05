@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from crm.models import UserProfile, Customer, ConsultRecord
+from crm.models import UserProfile, Customer, ConsultRecord, Enrollment
 
 
 # 自定义验证规则
@@ -11,7 +11,14 @@ def mobile_validate(value):
         raise ValidationError('手机号码格式错误')
 
 
-class RegisterForm(forms.ModelForm):
+class BootstrapBaseForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+
+class RegisterForm(BootstrapBaseForm):
     # 自定义字段的那些配置不能放到 Meta 中
     re_password = forms.CharField(label='确认密码', widget=forms.widgets.PasswordInput(), )
     mobile = forms.CharField(label='手机号', validators=[mobile_validate, ])
@@ -86,28 +93,19 @@ class RegisterForm(forms.ModelForm):
         # 全局钩子是需要将全局的数据全部返回
         return self.cleaned_data
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
 
-
-class CustomerForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
-
+class CustomerForm(BootstrapBaseForm):
     class Meta:
         model = Customer
         fields = '__all__'
 
         widgets = {
             'course': forms.widgets.SelectMultiple,
+            'birthday': forms.widgets.DateInput(attrs={'type': 'date'}),
         }
 
 
-class ConsultRecordForm(forms.ModelForm):
+class ConsultRecordForm(BootstrapBaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # 方法一：修改字段的 choices 选项
@@ -115,10 +113,20 @@ class ConsultRecordForm(forms.ModelForm):
         # 方法二：将 form 表的字段直接修改
         self.fields['customer'] = forms.models.ModelChoiceField(
             queryset=Customer.objects.filter(consultant=self.instance.consultant).all())
+        self.fields['customer'].widget.attrs.update({'class': 'form-control'})
         self.fields['consultant'].choices = [(self.instance.consultant.id, self.instance.consultant.name), ]
-        for field in self.fields.values():
-            field.widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = ConsultRecord
         exclude = ['delete_status', ]
+
+
+class EnrollmentForm(BootstrapBaseForm):
+    class Meta:
+        model = Enrollment
+        exclude = ['contract_approved', 'delete_status', ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # 限制添加报名表的时候只能选自己的私户
+        self.fields['customer'].choices = [(self.instance.customer.id, self.instance.customer.name)]
