@@ -107,27 +107,47 @@ class CustomerListView(views.View):
         action = request.POST.get('action')
         cid = request.POST.getlist('cid')
 
-        if action == 'to_private':
-            # 找到所有要操作的客户数据，把他们变成我的客户
-            Customer.objects.filter(id__in=cid).update(consultant=request.user)
-        elif action == 'to_public':
-            # 把我的客户数据变为公户数据
-            Customer.objects.filter(id__in=cid).update(consultant=None)
-
-        return redirect(reverse('customer_list'))
+        # if action == 'to_private':
+        #     # 找到所有要操作的客户数据，把他们变成我的客户
+        #     Customer.objects.filter(id__in=cid).update(consultant=request.user)
+        # elif action == 'to_public':
+        #     # 把我的客户数据变为公户数据
+        #     Customer.objects.filter(id__in=cid).update(consultant=None)
+        #
+        # return redirect(reverse('customer_list'))
 
         # ---------------------------------利用 action 反射操作--------------------------------------------
 
-    #     if hasattr(self, action):
-    #         getattr(self, action)(request, cid)
-    #
-    #     return redirect(reverse('customer_list'))
-    #
-    # def to_private(self, request, cid):
-    #     Customer.objects.filter(id__in=cid).update(consultant=request.user)
-    #
-    # def to_public(self, request, cid):
-    #     Customer.objects.filter(id__in=cid).update(consultant=request.user)
+        if not hasattr(self, action):
+            return HttpResponse('滚')
+        ret = getattr(self, action)(cid)
+        if ret:
+            return ret
+        return redirect(reverse('customer_list'))
+
+    def to_private(self, cid):
+        update_num = len(cid)
+        # 考虑到多个销售争抢同一个客户的情况
+        from django.db import transaction
+        with transaction.atomic():
+            # 找到所有要操作的客户数据，把他们变成我的客户
+            select_objs = Customer.objects.filter(id__in=cid, consultant__isnull=True).select_for_update()
+            select_num = select_objs.count()
+            # 如果查询出来的数据数目不等于想要更新的数量，说明有些被别人抢走了
+            if select_num != update_num:
+                # 拿到我可以转为私户的那些客户的id值
+                select_ids = [i[0] for i in select_objs.values_list('id')]
+                select_objs.update(consultant=self.request.user)
+                # 谁被别人抢走了
+                others = Customer.objects.filter(id__in=cid).exclude(id__in=select_ids)
+                name_tuple = others.values_list('name')
+                name_str = '、'.join([i[0] for i in name_tuple])
+                return HttpResponse('手太慢了，{}已经被别人抢走了'.format(name_str))
+            else:
+                select_objs.update(consultant=self.request.user)
+
+    def to_public(self, cid):
+        Customer.objects.filter(id__in=cid).update(consultant=self.request.user)
 
     # ---------------------------------利用 action 反射操作 END--------------------------------------------
 
