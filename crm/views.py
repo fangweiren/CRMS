@@ -57,7 +57,7 @@ class RegisterView(views.View):
 
 @login_required
 def index(request):
-    return HttpResponse('index')
+    return redirect(reverse('customer_list'))
 
 
 class CustomerListView(views.View):
@@ -91,10 +91,12 @@ class CustomerListView(views.View):
 
         # 获取当前 URL 作为操作后需要跳转回的 URL
         current_url = request.get_full_path()
+        # 生成一个空的 QueryDict 对象
         query_params = QueryDict(mutable=True)
+        # 添加一个 next 键值对
         query_params['next'] = current_url
+        # 利用 QueryDict 内置的方法编码成 URL
         next_url = query_params.urlencode()
-        print(next_url)
 
         return render(request, 'customer_list.html',
                       {'customer_list': data, 'next_url': next_url, 'page_obj': page_obj})
@@ -193,12 +195,17 @@ def customer(request, edit_id=None):
     return render(request, 'customer.html', {'form_obj': form_obj, 'edit_id': edit_id})
 
 
-def consult_record_list(request):
-    query_set = ConsultRecord.objects.filter(consultant=request.user, delete_status=False)
+def consult_record_list(request, cid=0):
+    """展示沟通记录"""
+    if int(cid) == 0:
+        query_set = ConsultRecord.objects.filter(consultant=request.user, delete_status=False)
+    else:
+        query_set = ConsultRecord.objects.filter(customer__id=cid, delete_status=False)
     return render(request, 'consult_record_list.html', {'consult_record_list': query_set})
 
 
 def consult_record(request, edit_id=None):
+    """添加与编辑沟通记录"""
     # 如果 edit_id=None 表示是新增操作，如果 edit_id 有值表示是编辑操作
     record_obj = ConsultRecord.objects.filter(pk=edit_id).first()  # 有值返回具体对象，否则返回 None
     if not record_obj:
@@ -212,6 +219,6 @@ def consult_record(request, edit_id=None):
         form_obj = ConsultRecordForm(request.POST, instance=record_obj)
         if form_obj.is_valid():
             form_obj.save()
-            return redirect(reverse('consult_record_list'))
+            return redirect(reverse('consult_record_list', kwargs={'cid': 0}))
 
     return render(request, 'consult_record.html', {'form_obj': form_obj, 'edit_id': edit_id})

@@ -51,7 +51,7 @@
                         <td>{{ forloop.counter }}</td>
                         <td>{{ consult_record.customer.name }}</td>
                         <td>{{ consult_record.note }}</td>
-                        <td>{{ consult_record.status }}</td>
+                        <td>{{ consult_record.get_status_display }}</td>
                         <td>{{ consult_record.consultant }}</td>
                         <td>{{ consult_record.date }}</td>
                         <td><a href="{% url 'edit_consult_record' consult_record.id %}"><i class="fa fa-edit"></i></a>

@@ -13,7 +13,7 @@ urlpatterns = [
     #--------------新增和编辑二合一--------------------
     url(r'add/', views.customer, name='add_customer'),
     url(r'edit/(\d+)/', views.customer, name='edit_customer'),
-    url(r'consult_record_list/', views.consult_record_list, name='consult_record_list'),
+    url(r'consult_record_list/(?P<cid>\d+)/', views.consult_record_list, name='consult_record_list'),
     url(r'add_record/', views.consult_record, name='add_consult_record'),
     url(r'edit_record/(\d+)/', views.consult_record, name='edit_consult_record'),
 ]

@@ -110,15 +110,15 @@ class CustomerForm(forms.ModelForm):
 class ConsultRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # 方法一：修改字段的 choices 选项
         # self.fields['customer'].choices = Customer.objects.filter(consultant=self.instance.consultant).values_list('id', 'qq')
-        self.fields['customer'] = forms.models.ModelChoiceField(queryset=Customer.objects.filter(consultant=self.instance.consultant).all())
+        # 方法二：将 form 表的字段直接修改
+        self.fields['customer'] = forms.models.ModelChoiceField(
+            queryset=Customer.objects.filter(consultant=self.instance.consultant).all())
+        self.fields['consultant'].choices = [(self.instance.consultant.id, self.instance.consultant.name), ]
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
 
     class Meta:
         model = ConsultRecord
         exclude = ['delete_status', ]
-
-        widgets = {
-            'course': forms.widgets.SelectMultiple,
-        }

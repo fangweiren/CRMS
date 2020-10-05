@@ -63,7 +63,7 @@
             <ul class="nav nav-sidebar">
                 <li><a href="{% url 'customer_list' %}">客户列表</a></li>
                 <li><a href="{% url 'my_customer' %}">我的客户</a></li>
-                <li><a href="{% url 'consult_record_list' %}">跟进记录</a></li>
+                <li><a href="{% url 'consult_record_list' cid=0 %}">跟进记录</a></li>
                 <li><a href="#">Export</a></li>
             </ul>
         </div>
