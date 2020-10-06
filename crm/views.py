@@ -6,10 +6,11 @@ from django.urls import reverse
 from django import views
 from django.db.models.query import Q
 from django.http import QueryDict
-from copy import deepcopy
+# from copy import deepcopy
 from crm.forms import RegisterForm, CustomerForm, ConsultRecordForm, EnrollmentForm
 from crm.models import UserProfile, Customer, ConsultRecord, Enrollment
 from utils.myPagination import Pagination
+from CRMS import settings
 
 
 # Create your views here.
@@ -127,6 +128,12 @@ class CustomerListView(views.View):
 
     def to_private(self, cid):
         update_num = len(cid)
+        # 判断 我已经有的私户数量 + 这一次要提交的数量 < 私户限制
+        if (self.request.user.customers.count() + update_num) > settings.CUSTOMER_NUM_LIMIT:
+            return HttpResponse('做人要厚道，给别人留点吧，最多还能再添加{}个'.format(
+                settings.CUSTOMER_NUM_LIMIT - self.request.user.customers.count()
+            ))
+
         # 考虑到多个销售争抢同一个客户的情况
         from django.db import transaction
         with transaction.atomic():
@@ -146,8 +153,9 @@ class CustomerListView(views.View):
             else:
                 select_objs.update(consultant=self.request.user)
 
-    def to_public(self, cid):
-        Customer.objects.filter(id__in=cid).update(consultant=self.request.user)
+    @staticmethod
+    def to_public(cid):
+        Customer.objects.filter(id__in=cid).update(consultant=None)
 
     # ---------------------------------利用 action 反射操作 END--------------------------------------------
 

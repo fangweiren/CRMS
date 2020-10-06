@@ -103,7 +103,7 @@ class Customer(models.Model):
             'signed': 'blue',
             'unregistered': 'red',
             'studying': 'green',
-            'paid_in_full': 'oranged',
+            'paid_in_full': 'orange',
         }
         return mark_safe('<span style="background-color: {}; color: white">{}</span>'.format(
             _status_color[self.status],
