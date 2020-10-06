@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block page_main %}
+    <h2 class="sub-header">班级列表</h2>
+    <div class="row">
+        <div class="col-md-3"><a href="{% url 'add_class' %}" class="btn btn-success">添加</a></div>
+
+        <form action="" method="get">
+            <div class="col-md-4 col-md-offset-5">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="query" placeholder="请输入 <姓名、QQ、QQ昵称> 进行搜索">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit">搜索</button>
+                    </span>
+                </div>
+            </div>
+        </form>
+    </div>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div style="margin: 5px 0">
+            <div class="input-group">
+                <select name="action" class="form-control" style="width: 110px;">
+                    <option value="">------------</option>
+                    <option value="to_public">变为公户</option>
+                    <option value="to_private">变为私户</option>
+                </select>
+                <span class="input-group-btn" style="width: auto">
+                <button class="btn btn-primary" type="submit">提交</button>
+            </span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>全选</th>
+                    <th>#</th>
+                    <th>课程名称</th>
+                    <th>学期</th>
+                    <th>校区</th>
+                    <th>学费</th>
+                    <th>说明</th>
+                    <th>开班日期</th>
+                    <th>结业日期</th>
+                    <th>老师</th>
+                    <th>班级类型</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for class in class_list %}
+                    <tr>
+                        <td><input type="checkbox" value="{{ class.id }}" name="cid"></td>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ class.get_course_display }}</td>
+                        <td>{{ class.semester }}</td>
+                        <td>{{ class.campuses }}</td>
+                        <td>{{ class.price }}</td>
+                        <td>{{ class.memo }}</td>
+                        <td>{{ class.start_date }}</td>
+                        <td>{{ class.graduate_date }}</td>
+                        <td>{{ class.teachers.first.name }}</td>
+                        <td>{{ class.get_class_type_display }}</td>
+                        <td><a href="{% url 'edit_class' class.id %}"><i class="fa fa-edit"></i></a></td>
+                    </tr>
+                {% endfor %}
+
+
+                </tbody>
+            </table>
+        </div>
+    </form>
+
+{% endblock %}

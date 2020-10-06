@@ -155,7 +155,7 @@ class ClassList(models.Model):
     teachers = models.ManyToManyField('UserProfile',
                                       verbose_name="老师")
 
-    class_type = models.CharField(choices=class_type_choices, max_length=64, verbose_name='班额及类型', blank=True,
+    class_type = models.CharField(choices=class_type_choices, max_length=64, verbose_name='班级类型', blank=True,
                                   null=True)
 
     class Meta:

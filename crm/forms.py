@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from crm.models import UserProfile, Customer, ConsultRecord, Enrollment
+from crm.models import UserProfile, Customer, ConsultRecord, Enrollment, ClassList
 
 
 # 自定义验证规则
@@ -130,3 +130,9 @@ class EnrollmentForm(BootstrapBaseForm):
         super().__init__(*args, **kwargs)
         # 限制添加报名表的时候只能选自己的私户
         self.fields['customer'].choices = [(self.instance.customer.id, self.instance.customer.name)]
+
+
+class ClassListForm(BootstrapBaseForm):
+    class Meta:
+        model = ClassList
+        fields = '__all__'
