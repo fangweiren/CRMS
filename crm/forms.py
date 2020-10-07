@@ -1,7 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from crm.models import UserProfile, Customer, ConsultRecord, Enrollment, ClassList
+from crm.models import UserProfile, Customer, ConsultRecord, Enrollment, ClassList, CourseRecord
 
 
 # 自定义验证规则
@@ -135,4 +135,10 @@ class EnrollmentForm(BootstrapBaseForm):
 class ClassListForm(BootstrapBaseForm):
     class Meta:
         model = ClassList
+        fields = '__all__'
+
+
+class CourseRecordForm(BootstrapBaseForm):
+    class Meta:
+        model = CourseRecord
         fields = '__all__'

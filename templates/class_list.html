@@ -53,7 +53,7 @@
                     <tr>
                         <td><input type="checkbox" value="{{ class.id }}" name="cid"></td>
                         <td>{{ forloop.counter }}</td>
-                        <td>{{ class.get_course_display }}</td>
+                        <td><a href="{% url 'course_record_list' class.id %}">{{ class.get_course_display }}</a></td>
                         <td>{{ class.semester }}</td>
                         <td>{{ class.campuses }}</td>
                         <td>{{ class.price }}</td>
