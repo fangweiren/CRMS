@@ -51,7 +51,7 @@ score_choices = ((100, 'A+'),
                  (60, 'C'),
                  (40, 'C-'),
                  (-50, 'D'),
-                 (0, 'N/A'),  # not avaliable
+                 (-1, 'N/A'),  # not avaliable
                  (-100, 'COPY'),  # 抄作业
                  )
 
@@ -252,6 +252,9 @@ class CourseRecord(models.Model):
     class Meta:
         unique_together = ('re_class', 'day_num')
 
+    def show_name(self):
+        return '{}---day{}'.format(self.re_class, self.day_num)
+
     def __str__(self):
         return self.course_title + '\t' + str(self.day_num)
 
@@ -260,7 +263,6 @@ class StudyRecord(models.Model):
     """
     学习记录
     """
-
     attendance = models.CharField("考勤", choices=attendance_choices, default="checked", max_length=64)
     score = models.IntegerField("本节成绩", choices=score_choices, default=-1)
     homework_note = models.CharField(max_length=255, verbose_name='作业批语', blank=True, null=True)

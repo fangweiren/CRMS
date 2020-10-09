@@ -35,4 +35,7 @@ urlpatterns = [
     url(r'^course_record_list/(?P<class_id>\d+)/$', class_views.CourseRecordListView.as_view(), name='course_record_list'),
     url(r'^add_course_record/(?P<class_id>\d+)/$', class_views.course_record, name='add_course_record'),
     url(r'^edit_course_record/(?P<course_record_id>\d+)/$', class_views.course_record, name='edit_course_record'),
+
+    # 学习记录
+    url(r'^study_record_list/(?P<course_record_id>\d+)/$', class_views.study_record_list, name='study_record_list'),
 ]
