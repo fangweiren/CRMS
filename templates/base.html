@@ -61,11 +61,13 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                <li><a href="{% url 'customer_list' %}">客户列表</a></li>
-                <li><a href="{% url 'my_customer' %}">我的客户</a></li>
-                <li><a href="{% url 'consult_record_list' cid=0 %}">跟进记录</a></li>
-                <li><a href="{% url 'enrollment_list' customer_id=0 %}">查看报名表</a></li>
-                <li><a href="{% url 'class_list' %}">班级列表</a></li>
+                {% load dynamic_menu %}
+                {% show_menu request %}
+                {#                <li><a href="{% url 'customer_list' %}">客户列表</a></li>#}
+                {#                <li><a href="{% url 'my_customer' %}">我的客户</a></li>#}
+                {#                <li><a href="{% url 'consult_record_list' cid=0 %}">跟进记录</a></li>#}
+                {#                <li><a href="{% url 'enrollment_list' customer_id=0 %}">查看报名表</a></li>#}
+                {#                <li><a href="{% url 'class_list' %}">班级列表</a></li>#}
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

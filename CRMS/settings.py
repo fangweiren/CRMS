@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crm.apps.CrmConfig',
+    'rbac.apps.RbacConfig',
 ]
 
 MIDDLEWARE = [
@@ -46,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'rbac.middleware.RBACMiddleware',
 ]
 
 ROOT_URLCONF = 'CRMS.urls'
@@ -64,6 +66,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'dynamic_menu': 'rbac.templatetags.dynamic_menu',
+            },
         },
     },
 ]
@@ -136,3 +141,14 @@ SHOW_PAGE = 9
 
 # 私户限制(原本应该独立建一张表，罗列每个人的私户限制)
 CUSTOMER_NUM_LIMIT = 3
+
+# 权限组件的相关配置
+WHITE_URLS = [
+    '/login/',
+    '/logout/',
+    '/register/',
+    '/admin/.*',
+]
+
+PREMISSION_SESSION_KEY = 'permission_url'
+MENU_SESSION_KEY = 'menu_list'

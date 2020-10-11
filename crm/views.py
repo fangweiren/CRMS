@@ -9,6 +9,7 @@ from django.http import QueryDict
 # from copy import deepcopy
 from crm.forms import RegisterForm, CustomerForm, ConsultRecordForm, EnrollmentForm
 from crm.models import UserProfile, Customer, ConsultRecord, Enrollment
+from rbac.utils import permission
 from utils.myPagination import Pagination
 from CRMS import settings
 
@@ -28,12 +29,15 @@ class LoginView(views.View):
         if user_obj:
             # 登录成功
             # 存session数据并写回Cookie
-            auth.login(request, user_obj)
+            auth.login(request, user_obj)  # auth 认证中间件的源码
+            # 执行权限组件的初始化方法
+            permission.init(request, user_obj)
+
             if is_check:
                 request.session.set_expiry(7 * 24 * 60 * 60)
             else:
                 request.session.set_expiry(0)
-            return redirect('/index/')
+            return redirect(reverse('customer_list'))
         else:
             return render(request, 'login.html', {"error_msg": "邮箱或密码错误"})
 
