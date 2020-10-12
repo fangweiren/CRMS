@@ -29,7 +29,7 @@ urlpatterns = [
     # 班级
     url(r'^class_list/$', class_views.ClassListView.as_view(), name='class_list'),
     url(r'^add_class/$', class_views.add_edit_class, name='add_class'),
-    url(r'^edit_class/(?P<edit_id>\d+)$', class_views.add_edit_class, name='edit_class'),
+    url(r'^edit_class/(?P<edit_id>\d+)/$', class_views.add_edit_class, name='edit_class'),
 
     # 课程记录
     url(r'^course_record_list/(?P<class_id>\d+)/$', class_views.CourseRecordListView.as_view(), name='course_record_list'),

@@ -1,4 +1,21 @@
-{% for menu in menu_list %}
-    <li class="{{ menu.class }}" style="text-align: center"><a href="{{ menu.url }}"><i
-            class="fa {{ menu.icon }}"></i> {{ menu.title }}</a></li>
-{% endfor %}
+{#{% for menu in menu_list %}#}
+{#    <li class="{{ menu.class }}" style="text-align: center"><a href="{{ menu.url }}"><i#}
+{#            class="fa {{ menu.icon }}"></i> {{ menu.title }}</a></li>#}
+{#{% endfor %}#}
+
+<div class="multi-menu">
+    {% for menu in menu_list %}
+        <div class="item">
+            <div class="title"><i class="fa {{ menu.icon }}"></i> {{ menu.title }}</div>
+            <div class="body">
+                <ul style="list-style: none">
+                    {% for child in menu.children %}
+                        {% if child.show %}
+                            <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+</div>

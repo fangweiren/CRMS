@@ -67,7 +67,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             'libraries': {
-                'dynamic_menu': 'rbac.templatetags.dynamic_menu',
+                'my_tags': 'rbac.templatetags.my_tags',
             },
         },
     },
@@ -151,4 +151,4 @@ WHITE_URLS = [
 ]
 
 PREMISSION_SESSION_KEY = 'permission_url'
-MENU_SESSION_KEY = 'menu_list'
+MENU_SESSION_KEY = 'menu_dict'

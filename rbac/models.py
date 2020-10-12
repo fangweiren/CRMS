@@ -2,12 +2,23 @@ from django.db import models
 from crm.models import UserProfile
 
 
-# Create your models here.
+class Menu(models.Model):
+    title = models.CharField(verbose_name='菜单名称', max_length=32, unique=True)
+    icon = models.CharField(max_length=24)  # 菜单的图标
+
+    class Meta:
+        verbose_name = '菜单'
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return self.title
+
+
 class Permissions(models.Model):
     title = models.CharField(verbose_name='标题', max_length=32)
-    url = models.CharField(max_length=32)
-    is_menu = models.BooleanField(default=False)  # 是否能做菜单
-    icon = models.CharField(max_length=24, null=True, blank=True)  # 菜单的图标
+    url = models.CharField(max_length=64)
+    show = models.BooleanField(default=False)  # 是否显示成菜单
+    menu = models.ForeignKey(to='Menu', verbose_name='所属菜单', null=True, blank=True)
 
     class Meta:
         verbose_name = '权限'

@@ -20,6 +20,7 @@
     <!-- Custom styles for this template -->
     <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
     <link href="{% static 'font-awesome/css/font-awesome.css' %}" rel="stylesheet">
+    <link href="{% static 'css/rbac_menu.css' %}" rel="stylesheet">
 </head>
 
 <body>
@@ -61,7 +62,7 @@
     <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
             <ul class="nav nav-sidebar">
-                {% load dynamic_menu %}
+                {% load my_tags %}
                 {% show_menu request %}
                 {#                <li><a href="{% url 'customer_list' %}">客户列表</a></li>#}
                 {#                <li><a href="{% url 'my_customer' %}">我的客户</a></li>#}
