@@ -4,7 +4,8 @@ from crm.models import UserProfile
 
 class Menu(models.Model):
     title = models.CharField(verbose_name='菜单名称', max_length=32, unique=True)
-    icon = models.CharField(max_length=24)  # 菜单的图标
+    icon = models.CharField(max_length=24, null=True, blank=True)  # 菜单的图标
+    weight = models.PositiveIntegerField(default=50, verbose_name='菜单权重')
 
     class Meta:
         verbose_name = '菜单'
@@ -18,7 +19,7 @@ class Permissions(models.Model):
     title = models.CharField(verbose_name='标题', max_length=32)
     url = models.CharField(max_length=64)
     show = models.BooleanField(default=False)  # 是否显示成菜单
-    menu = models.ForeignKey(to='Menu', verbose_name='所属菜单', null=True, blank=True)
+    menu = models.ForeignKey(to='Menu', verbose_name='所属菜单')
 
     class Meta:
         verbose_name = '权限'
@@ -31,7 +32,7 @@ class Permissions(models.Model):
 # 角色表
 class Role(models.Model):
     title = models.CharField(max_length=32)
-    permissions = models.ManyToManyField(to='Permissions', null=True, blank=True)
+    permissions = models.ManyToManyField(to='Permissions')
     user = models.ManyToManyField(to=UserProfile, related_name='roles')
 
     class Meta:

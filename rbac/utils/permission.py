@@ -21,6 +21,7 @@ def init(request, user_obj):
         'permissions__menu_id',  # 菜单id
         'permissions__menu__title',  # 菜单标题
         'permissions__menu__icon',  # 菜单图标
+        'permissions__menu__weight',  # 菜单的权重
     ).distinct()
     # print(queryset)
     # [{
@@ -56,6 +57,7 @@ def init(request, user_obj):
                 'id': p_id,
                 'title': item['permissions__menu__title'],
                 'icon': item['permissions__menu__icon'],
+                'weight': item['permissions__menu__weight'],
                 'children': [{'title': item['permissions__title'],
                               'url': item['permissions__url'],
                               'show': item['permissions__show']}]

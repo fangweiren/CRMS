@@ -32,4 +32,6 @@
 
 .multi-menu .item > .body a.active {
     border-left: 2px solid #2F72AB;
+    background-color: #337ab7;
+    color: white;
 }

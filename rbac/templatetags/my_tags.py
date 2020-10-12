@@ -9,10 +9,14 @@ register = template.Library()
 def show_menu(request):
     menu_key = getattr(settings, 'MENU_SESSION_KEY', 'menu_dict')
     menu_dict = request.session[menu_key]
-    menu_list = menu_dict.values()
+    # menu_list = menu_dict.values()
+    # 对菜单按照权重排序
+    menu_list = sorted(menu_dict.values(), key=lambda x: x['weight'], reverse=True)
     for menu in menu_list:
+        menu['class'] = 'hide'
         for child in menu['children']:
             if re.match(r'^{}$'.format(child['url']), request.path_info):
-                menu['class'] = 'active'
+                child['class'] = 'active'
+                menu['class'] = ''
                 break
     return {'menu_list': menu_list}

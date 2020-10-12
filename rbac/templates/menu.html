@@ -7,14 +7,12 @@
     {% for menu in menu_list %}
         <div class="item">
             <div class="title"><i class="fa {{ menu.icon }}"></i> {{ menu.title }}</div>
-            <div class="body">
-                <ul style="list-style: none">
-                    {% for child in menu.children %}
-                        {% if child.show %}
-                            <li><a href="{{ child.url }}">{{ child.title }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
+            <div class="body {{ menu.class }}">
+                {% for child in menu.children %}
+                    {% if child.show %}
+                        <a href="{{ child.url }}" class="{{ child.class }}">{{ child.title }}</a>
+                    {% endif %}
+                {% endfor %}
             </div>
         </div>
     {% endfor %}
