@@ -18,10 +18,20 @@ class RBACMiddleware(MiddlewareMixin):
         key = getattr(settings, 'PREMISSION_SESSION_KEY', 'permission_list')
         # 3.当前登录的这个人的权限有哪些？
         permission_list = request.session.get(key, [])
+
+        # 为面包屑导航准备数据
+        request.bread_crumb = [{'title': '首页', 'url': '#'}]
+        # 从 session 中取到菜单信息
+        menu_key = getattr(settings, 'MENU_SESSION_KEY', 'menu_dict')
+        menu_dict = request.session[menu_key]
+
         # 4.因为 Django URL 存在模糊匹配，所以校验权限的时候要用正则
-        for pattern in permission_list:
-            if re.match(r'^{}$'.format(pattern), current_url):
+        for item in permission_list:
+            if re.match(r'^{}$'.format(item['url']), current_url):
                 # 拥有权限
+                # 根据权限找到父菜单
+                menu_title = menu_dict[str(item['menu_id'])]['title']
+                request.bread_crumb.append({'title': menu_title})
                 return None
         else:
             return HttpResponse('没有权限')

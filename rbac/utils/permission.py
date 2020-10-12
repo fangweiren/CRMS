@@ -49,7 +49,7 @@ def init(request, user_obj):
     menu_dict = {}
 
     for item in queryset:
-        permission_list.append(item['permissions__url'])  # 能够访问的权限列表
+        permission_list.append({'url': item['permissions__url'], 'menu_id': item['permissions__menu_id']})  # 能够访问的权限列表
         # 再取出菜单列表
         p_id = item['permissions__menu_id']
         if p_id not in menu_dict:

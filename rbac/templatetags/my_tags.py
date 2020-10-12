@@ -20,3 +20,9 @@ def show_menu(request):
                 menu['class'] = ''
                 break
     return {'menu_list': menu_list}
+
+
+@register.inclusion_tag(filename='bread_crumb.html')
+def bread_crumb(request):
+    bread_crumb_list = request.bread_crumb
+    return {'bread_crumb_list': bread_crumb_list}
